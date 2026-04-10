@@ -1,4 +1,4 @@
-# 🏛️ MemPalace — Índice Geral
+# 🧠 Claudiknows — Índice Geral
 
 > Mapa navegável de tudo que conversamos. Este arquivo é o ponto de entrada.
 
@@ -9,7 +9,7 @@
 
 ## Como Funciona
 
-- **Wing** = pessoa ou projeto. Cada um tem sua ala no palace.
+- **Wing** = pessoa ou projeto. Cada um tem sua ala no Claudiknows.
 - **Halls** = corredores temáticos dentro de cada wing (decisões, problemas, descobertas, propostas).
 - **Drawers** = logs verbatim das conversas — o conteúdo original, nunca resumido.
 - **Tunnels** = referências cruzadas entre wings (quando o mesmo assunto aparece em projetos/pessoas diferentes).

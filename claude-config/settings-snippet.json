@@ -7,7 +7,7 @@
           {
             "type": "command",
             "command": "$HOME/.claude/hooks/session-start.sh",
-            "statusMessage": "Carregando Palace..."
+            "statusMessage": "Carregando Claudiknows..."
           }
         ]
       }

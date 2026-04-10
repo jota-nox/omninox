@@ -1,6 +1,6 @@
 #!/bin/bash
-# Palace Installer
-# Instala o sistema PARA + MemPalace com hooks do Claude Code.
+# Claudiknows Installer
+# Instala o sistema PARA + Claudiknows com hooks do Claude Code.
 # Uso: bash install.sh
 
 set -e
@@ -23,8 +23,8 @@ ask()  { echo -e "${BLUE}?${NC} $1"; }
 
 # ─── cabeçalho ────────────────────────────────────────────────────────────────
 echo ""
-echo "  🏛️  Palace Installer"
-echo "  Sistema PARA + MemPalace para Claude Code"
+echo "  🧠  Claudiknows Installer"
+echo "  Sistema PARA + Claudiknows para Claude Code"
 echo "  ──────────────────────────────────────────"
 echo ""
 
@@ -49,7 +49,7 @@ VAULT_PATH="$VAULT_PARENT/$VAULT_NAME"
 
 if [ -d "$VAULT_PATH" ]; then
   warn "Pasta '$VAULT_PATH' já existe."
-  read -r -p "  Continuar e instalar o palace dentro dela? [s/N] " CONFIRM
+  read -r -p "  Continuar e instalar o Claudiknows dentro dela? [s/N] " CONFIRM
   if [[ ! "$CONFIRM" =~ ^[sS]$ ]]; then
     echo "Instalação cancelada."
     exit 0
@@ -83,7 +83,7 @@ read -r -p "  → " FIRST_WING
 echo ""
 echo "  ─── Resumo da instalação ──────────────────"
 echo "  Vault:     $VAULT_PATH"
-echo "  Palace:    $VAULT_PATH/Areas/palace"
+echo "  Claudiknows:$VAULT_PATH/Areas/claudiknows"
 echo "  Hook:      $HOME/.claude/hooks/session-start.sh"
 echo "  Nome:      $USER_NAME"
 [ -n "$USER_LOCATION" ] && echo "  Local:     $USER_LOCATION"
@@ -109,11 +109,11 @@ mkdir -p "$VAULT_PATH/90 Templates"
 mkdir -p "$VAULT_PATH/00 Inbox"
 ok "Estrutura PARA criada"
 
-# ─── 5. copiar palace ─────────────────────────────────────────────────────────
-PALACE_DEST="$VAULT_PATH/Areas/palace"
-mkdir -p "$PALACE_DEST"
-cp -r "$TEMPLATE_DIR/palace/." "$PALACE_DEST/"
-ok "Palace copiado para $PALACE_DEST"
+# ─── 5. copiar claudiknows ─────────────────────────────────────────────────────────
+CK_DEST="$VAULT_PATH/Areas/claudiknows"
+mkdir -p "$CK_DEST"
+cp -r "$TEMPLATE_DIR/claudiknows/." "$CK_DEST/"
+ok "Claudiknows instalado em $CK_DEST"
 
 # ─── 6. copiar CLAUDE.md ──────────────────────────────────────────────────────
 CLAUDE_DEST="$VAULT_PATH/CLAUDE.md"
@@ -133,7 +133,7 @@ fi
 
 # ─── 7. preencher _identity.md ────────────────────────────────────────────────
 TODAY=$(date +%Y-%m-%d)
-IDENTITY_FILE="$PALACE_DEST/_identity.md"
+IDENTITY_FILE="$CK_DEST/_identity.md"
 
 sed -i '' \
   -e "s/__NOME__/$USER_NAME/g" \
@@ -144,7 +144,7 @@ sed -i '' \
 ok "_identity.md preenchido"
 
 # ─── 8. preencher _wake-up.md ─────────────────────────────────────────────────
-WAKE_FILE="$PALACE_DEST/_wake-up.md"
+WAKE_FILE="$CK_DEST/_wake-up.md"
 sed -i '' "s/__DATA__/$TODAY/g" "$WAKE_FILE"
 ok "_wake-up.md inicializado"
 
@@ -154,7 +154,7 @@ HOOK_DEST="$HOOK_DIR/session-start.sh"
 mkdir -p "$HOOK_DIR"
 
 # Substitui placeholder pelo path real
-sed "s|__PALACE_PATH__|$PALACE_DEST|g" \
+sed "s|__CK_PATH__|$CK_DEST|g" \
   "$TEMPLATE_DIR/hooks/session-start.sh" > "$HOOK_DEST"
 chmod +x "$HOOK_DEST"
 ok "Hook instalado em $HOOK_DEST"
@@ -197,29 +197,29 @@ PYEOF
   fi
 fi
 
-# ─── 11. tornar palace.sh executável ──────────────────────────────────────────
-chmod +x "$PALACE_DEST/.scripts/palace.sh"
-ok "palace.sh marcado como executável"
+# ─── 11. tornar claudiknows.sh executável ──────────────────────────────────────────
+chmod +x "$CK_DEST/.scripts/claudiknows.sh"
+ok "claudiknows.sh marcado como executável"
 
 # ─── 12. wing inicial (opcional) ──────────────────────────────────────────────
 if [ -n "$FIRST_WING" ]; then
-  bash "$PALACE_DEST/.scripts/palace.sh" new-wing "$FIRST_WING" "Wing inicial" 2>/dev/null \
+  bash "$CK_DEST/.scripts/claudiknows.sh" new-wing "$FIRST_WING" "Wing inicial" 2>/dev/null \
     && ok "Wing '$FIRST_WING' criada" \
-    || warn "Não foi possível criar wing '$FIRST_WING' — crie depois com palace.sh"
+    || warn "Não foi possível criar wing '$FIRST_WING' — crie depois com claudiknows.sh"
 fi
 
 # ─── conclusão ────────────────────────────────────────────────────────────────
 echo ""
 echo "  ─── Instalação concluída! ──────────────────"
-ok "Palace em:  $PALACE_DEST"
+ok "Claudiknows em:  $CK_DEST"
 ok "Hook ativo: $HOOK_DEST"
 echo ""
 echo "  Próximos passos:"
 echo "  1. Abra o vault '$VAULT_NAME' no Obsidian"
 echo "  2. Inicie uma nova sessão do Claude Code dentro do vault:"
 echo "     cd \"$VAULT_PATH\" && claude"
-echo "  3. O palace já vai aparecer automaticamente no contexto."
+echo "  3. O Claudiknows já vai aparecer automaticamente no contexto."
 echo ""
 echo "  Para criar wings depois:"
-echo "  bash Areas/palace/.scripts/palace.sh new-wing <nome> '<descrição>'"
+echo "  bash Areas/claudiknows/.scripts/claudiknows.sh new-wing <nome> '<descrição>'"
 echo ""

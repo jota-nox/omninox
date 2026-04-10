@@ -1,13 +1,13 @@
 #!/bin/bash
-# Palace CLI — Helper para o MemPalace
-# Uso: bash palace.sh <comando> [args...]
+# Claudiknows CLI — Helper para o Claudiknows
+# Uso: bash claudiknows.sh <comando> [args...]
 
-PALACE_DIR="$(cd "$(dirname "$0")/.." && pwd)"
-WINGS_DIR="$PALACE_DIR/wings"
+CK_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+WINGS_DIR="$CK_DIR/wings"
 TEMPLATE_DIR="$WINGS_DIR/_template"
 
 usage() {
-  echo "Palace CLI — Helper para o MemPalace"
+  echo "Claudiknows CLI — Helper para o Claudiknows"
   echo ""
   echo "Comandos:"
   echo "  new-wing <nome> <descricao>    Cria nova wing a partir do template"
@@ -16,7 +16,7 @@ usage() {
   echo "  update-wake-up                  Regenera _wake-up.md a partir do estado atual"
   echo ""
   echo "Exemplo:"
-  echo "  bash palace.sh new-wing projeto-x 'Redesign do dashboard principal'"
+  echo "  bash claudiknows.sh new-wing projeto-x 'Redesign do dashboard principal'"
 }
 
 cmd_new_wing() {
@@ -24,7 +24,7 @@ cmd_new_wing() {
   local desc="$2"
 
   if [ -z "$name" ] || [ -z "$desc" ]; then
-    echo "Erro: uso: palace.sh new-wing <nome> <descricao>"
+    echo "Erro: uso: claudiknows.sh new-wing <nome> <descricao>"
     exit 1
   fi
 
@@ -61,7 +61,7 @@ cmd_new_wing() {
 EOF
 
   # Adiciona à tabela do _index.md
-  local index_file="$PALACE_DIR/_index.md"
+  local index_file="$CK_DIR/_index.md"
   local new_row="| [[$name]] | projeto | ativo | $(date +%Y-%m-%d) |"
 
   # Insere antes da linha '## Como Funciona'
@@ -116,7 +116,7 @@ cmd_read_wing() {
 }
 
 cmd_update_wake_up() {
-  local wake_file="$PALACE_DIR/_wake-up.md"
+  local wake_file="$CK_DIR/_wake-up.md"
   local today=$(date +%Y-%m-%d)
 
   # Coleta projetos ativos

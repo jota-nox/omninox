@@ -1,13 +1,13 @@
-# Palace — Sistema PARA + MemPalace para Claude Code
+# Claudiknows — Sistema PARA + Claudiknows para Claude Code
 
 Sistema de memória persistente em Markdown para uso com o Claude Code.
-Combina organização PARA (Obsidian) com um MemPalace que injeta contexto automaticamente em toda sessão.
+Combina organização PARA (Obsidian) com um Claudiknows que injeta contexto automaticamente em toda sessão.
 
 ## Instalação
 
 ```bash
 git clone https://github.com/<seu-usuario>/palace
-cd palace
+cd claudiknows
 bash install.sh
 ```
 
@@ -29,15 +29,15 @@ Tempo estimado: ~2 minutos.
 ├── 40 Arquivo/
 ├── 90 Templates/
 ├── 00 Inbox/
-├── Areas/palace/          ← o MemPalace
+├── Areas/claudiknows/          ← o Claudiknows
 │   ├── _identity.md       ← quem você é
 │   ├── _wake-up.md        ← contexto da sessão (injetado automaticamente)
-│   ├── _index.md          ← mapa do palace
-│   ├── .scripts/palace.sh ← CLI helper
+│   ├── _index.md          ← mapa do Claudiknows
+│   ├── .scripts/claudiknows.sh ← CLI helper
 │   └── wings/             ← um diretório por projeto/pessoa
-└── CLAUDE.md              ← instruções do palace para o Claude
+└── CLAUDE.md              ← instruções do Claudiknows para o Claude
 
-~/.claude/hooks/session-start.sh   ← hook global (injeta palace em toda sessão)
+~/.claude/hooks/session-start.sh   ← hook global (injeta Claudiknows em toda sessão)
 ~/.claude/settings.json            ← configura o hook no Claude Code
 ```
 
@@ -48,26 +48,26 @@ Tempo estimado: ~2 minutos.
 cd <vault>
 claude
 ```
-O palace é injetado automaticamente no contexto.
+O Claudiknows é injetado automaticamente no contexto.
 
 ### Criar uma nova wing (projeto ou pessoa)
 ```bash
-bash Areas/palace/.scripts/palace.sh new-wing nome-do-projeto "Descrição curta"
+bash Areas/claudiknows/.scripts/claudiknows.sh new-wing nome-do-projeto "Descrição curta"
 ```
 
 ### Listar wings
 ```bash
-bash Areas/palace/.scripts/palace.sh list-wings
+bash Areas/claudiknows/.scripts/claudiknows.sh list-wings
 ```
 
 ### Atualizar wake-up
 ```bash
-bash Areas/palace/.scripts/palace.sh update-wake-up
+bash Areas/claudiknows/.scripts/claudiknows.sh update-wake-up
 ```
 
 ## Conceitos
 
-- **Wing** = uma ala do palace para cada projeto ou pessoa
+- **Wing** = uma ala do Claudiknows para cada projeto ou pessoa
 - **Halls** = corredores temáticos dentro de cada wing (decisões, problemas, descobertas, propostas)
 - **Drawers** = logs verbatim das conversas — nunca resumidos
 - **Wake-up** = contexto mínimo (~200 tokens) injetado em toda sessão

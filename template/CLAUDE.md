@@ -1,4 +1,4 @@
-# Palace Protocol — Instruções para Claude
+# Claudiknows Protocol — Instruções para Claude
 
 > Este arquivo é lido automaticamente no início de toda sessão do Claude Code.
 > O hook SessionStart já injeta _wake-up.md e _identity.md no contexto.
@@ -6,18 +6,18 @@
 
 ## Quem é o usuário
 
-Leia Areas/palace/_identity.md para detalhes.
+Leia Areas/claudiknows/_identity.md para detalhes.
 Tom: direto, informal, sem enrolação. Prefere soluções que funcionem.
 
-## O que é o Palace
+## O que é o Claudiknows
 
-O MemPalace é um sistema de memória persistente em Markdown dentro deste vault Obsidian.
-Estrutura: Areas/palace/ com wings (projetos/pessoas), halls (decisões, problemas, descobertas, propostas), e drawers (logs verbatim).
+O Claudiknows é um sistema de memória persistente em Markdown dentro deste vault Obsidian.
+Estrutura: Areas/claudiknows/ com wings (projetos/pessoas), halls (decisões, problemas, descobertas, propostas), e drawers (logs verbatim).
 
 ### Hierarquia de arquivos
 
 ```
-Areas/palace/
+Areas/claudiknows/
 ├── _wake-up.md          # Contexto de sessão (~200 tokens, injetado pelo hook)
 ├── _identity.md         # Quem é o usuário (injetado pelo hook)
 ├── _index.md            # Mapa navegável
@@ -48,8 +48,8 @@ Se a conversa for sobre um projeto/pessoa específico, navegue até a wing relev
 ### Final de conversa substantiva
 Ao final de uma conversa que gerou valor (decisões, descobertas, propostas), execute o protocolo de salvamento:
 
-1. **Pergunte antes de salvar.** Sempre. ("Quer que eu salve essa sessão no palace?")
-2. Se sim, use o script helper: `bash Areas/palace/.scripts/palace.sh save-session`
+1. **Pergunte antes de salvar.** Sempre. ("Quer que eu salve essa sessão no Claudiknows?")
+2. Se sim, use o script helper: `bash Areas/claudiknows/.scripts/claudiknows.sh save-session`
 3. Ou faça manualmente:
    a. Crie o drawer em `wings/{nome}/drawers/YYYY-MM-DD_titulo.md`
    b. Atualize os halls relevantes (decisoes, problemas, descobertas, propostas)
@@ -57,7 +57,7 @@ Ao final de uma conversa que gerou valor (decisões, descobertas, propostas), ex
    d. Atualize `_index.md` se uma nova wing foi criada
 
 ### Criar nova wing
-Use o script: `bash Areas/palace/.scripts/palace.sh new-wing nome-da-wing "Descrição curta"`
+Use o script: `bash Areas/claudiknows/.scripts/claudiknows.sh new-wing nome-da-wing "Descrição curta"`
 Ou copie manualmente de wings/_template/.
 
 ## Regras
