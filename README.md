@@ -1,23 +1,21 @@
-# Claudiknows — Sistema PARA + Claudiknows para Claude Code
+# OmniNox — Sistema de Memória Persistente para Claude Code
 
-Sistema de memória persistente em Markdown para uso com o Claude Code.
-Combina organização PARA (Obsidian) com um Claudiknows que injeta contexto automaticamente em toda sessão.
+Sistema de memória em Markdown para uso com Claude Code + Obsidian.
+Injeta contexto automaticamente em toda sessão. Drawers auto-save, halls curados, busca full-text.
 
 ## Instalação
 
 ```bash
-git clone https://github.com/<seu-usuario>/palace
-cd claudiknows
+git clone https://github.com/jota-nox/omninox
+cd omninox
 bash install.sh
 ```
 
-O installer vai perguntar:
+O installer pergunta:
 - Onde criar o vault (pasta pai)
 - Nome do vault
 - Seu nome, localização e idioma
 - Se quer criar uma wing inicial
-
-Tempo estimado: ~2 minutos.
 
 ## O que é instalado
 
@@ -29,15 +27,24 @@ Tempo estimado: ~2 minutos.
 ├── 40 Arquivo/
 ├── 90 Templates/
 ├── 00 Inbox/
-├── Areas/claudiknows/          ← o Claudiknows
-│   ├── _identity.md       ← quem você é
-│   ├── _wake-up.md        ← contexto da sessão (injetado automaticamente)
-│   ├── _index.md          ← mapa do Claudiknows
-│   ├── .scripts/claudiknows.sh ← CLI helper
-│   └── wings/             ← um diretório por projeto/pessoa
-└── CLAUDE.md              ← instruções do Claudiknows para o Claude
+├── Areas/omninox/              ← o OmniNox
+│   ├── _identity.md            ← quem você é
+│   ├── _wake-up.md             ← contexto da sessão (injetado automaticamente)
+│   ├── _index.md               ← mapa do OmniNox
+│   ├── tunnels.md              ← referências cruzadas entre wings
+│   ├── .scripts/omninox.sh     ← CLI helper
+│   └── wings/                  ← um diretório por projeto/pessoa
+│       └── _template/          ← template para novas wings
+│           ├── _wing.md
+│           ├── _continue.md    ← checkpoint de sessão
+│           ├── decisoes.md
+│           ├── problemas.md
+│           ├── descobertas.md
+│           ├── propostas.md
+│           └── drawers/
+└── CLAUDE.md                   ← protocolo de comportamento do Claude
 
-~/.claude/hooks/session-start.sh   ← hook global (injeta Claudiknows em toda sessão)
+~/.claude/hooks/session-start.sh   ← hook global (injeta OmniNox em toda sessão)
 ~/.claude/settings.json            ← configura o hook no Claude Code
 ```
 
@@ -48,29 +55,61 @@ Tempo estimado: ~2 minutos.
 cd <vault>
 claude
 ```
-O Claudiknows é injetado automaticamente no contexto.
+O OmniNox é injetado automaticamente no contexto.
 
-### Criar uma nova wing (projeto ou pessoa)
+### Criar uma nova wing
 ```bash
-bash Areas/claudiknows/.scripts/claudiknows.sh new-wing nome-do-projeto "Descrição curta"
+bash Areas/omninox/.scripts/omninox.sh new-wing projeto-x "Descrição curta"
+```
+
+### Salvar um drawer
+```bash
+echo "conteúdo" | bash Areas/omninox/.scripts/omninox.sh save-drawer projeto-x "titulo-sessao"
+```
+
+### Buscar no OmniNox
+```bash
+bash Areas/omninox/.scripts/omninox.sh search "termo"
 ```
 
 ### Listar wings
 ```bash
-bash Areas/claudiknows/.scripts/claudiknows.sh list-wings
+bash Areas/omninox/.scripts/omninox.sh list-wings
 ```
 
 ### Atualizar wake-up
 ```bash
-bash Areas/claudiknows/.scripts/claudiknows.sh update-wake-up
+bash Areas/omninox/.scripts/omninox.sh update-wake-up
 ```
 
 ## Conceitos
 
-- **Wing** = uma ala do Claudiknows para cada projeto ou pessoa
+- **Wing** = uma ala do OmniNox para cada projeto ou pessoa
 - **Halls** = corredores temáticos dentro de cada wing (decisões, problemas, descobertas, propostas)
 - **Drawers** = logs verbatim das conversas — nunca resumidos
+- **Tunnels** = referências cruzadas entre wings
 - **Wake-up** = contexto mínimo (~200 tokens) injetado em toda sessão
+- **Continue** = checkpoint da última sessão por wing (injetado automaticamente)
+
+## Protocolo de save
+
+O OmniNox usa duas camadas de save:
+
+| Camada | Permissão | O que salva |
+|--------|-----------|-------------|
+| **Drawers** | Auto-save | Log verbatim da sessão. Sem pedir permissão. |
+| **Halls** | Curado | Decisões, problemas, descobertas, propostas. Claude pede permissão. |
+
+## Context Budget
+
+O CLAUDE.md inclui regras de gestão de contexto para sessões longas:
+
+| Tier | Uso | Comportamento |
+|------|-----|---------------|
+| PEAK | 0-30% | Operação normal |
+| GOOD | 30-50% | Leituras seletivas |
+| DEGRADING | 50-70% | Avisa o usuário |
+| POOR | 70%+ | Salva e oferece sessão nova |
 
 ## Requisitos
 

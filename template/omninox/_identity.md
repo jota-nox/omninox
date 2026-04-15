@@ -1,6 +1,6 @@
 # 🪪 Identidade — Quem Sou Eu
 
-> Layer 0 do Claudiknows. Informações permanentes ou de mudança muito lenta.
+> Layer 0 do OmniNox. Informações permanentes ou de mudança muito lenta.
 > Claude lê isso para saber com quem está falando.
 
 ## Pessoa

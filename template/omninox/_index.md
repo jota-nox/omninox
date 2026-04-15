@@ -1,15 +1,15 @@
-# 🧠 Claudiknows — Índice Geral
+# OmniNox — Indice Geral
 
 > Mapa navegável de tudo que conversamos. Este arquivo é o ponto de entrada.
 
 ## Wings Ativas
 
-| Wing | Tipo | Status | Última Atualização |
+| Wing | Tipo | Status | Ultima Atualizacao |
 |------|------|--------|--------------------|
 
 ## Como Funciona
 
-- **Wing** = pessoa ou projeto. Cada um tem sua ala no Claudiknows.
+- **Wing** = pessoa ou projeto. Cada um tem sua ala no OmniNox.
 - **Halls** = corredores temáticos dentro de cada wing (decisões, problemas, descobertas, propostas).
 - **Drawers** = logs verbatim das conversas — o conteúdo original, nunca resumido.
 - **Tunnels** = referências cruzadas entre wings (quando o mesmo assunto aparece em projetos/pessoas diferentes).
@@ -18,9 +18,9 @@
 
 1. Toda sessão: Claude lê `_wake-up.md` para contexto mínimo
 2. Sob demanda: Claude navega para a wing/hall relevante
-3. Final de conversa relevante: Claude gera síntese → pede permissão → salva
+3. Final de conversa: Claude salva drawer automaticamente; halls sob permissão
 
-## Links Rápidos
+## Links Rapidos
 
 - [[_wake-up]] — contexto de inicialização
 - [[_identity]] — quem é o usuário, preferências permanentes

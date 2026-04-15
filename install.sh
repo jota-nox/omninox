@@ -1,6 +1,6 @@
 #!/bin/bash
-# Claudiknows Installer
-# Instala o sistema PARA + Claudiknows com hooks do Claude Code.
+# OmniNox Installer
+# Instala o sistema PARA + OmniNox com hooks do Claude Code.
 # Uso: bash install.sh
 
 set -e
@@ -23,8 +23,8 @@ ask()  { echo -e "${BLUE}?${NC} $1"; }
 
 # ─── cabeçalho ────────────────────────────────────────────────────────────────
 echo ""
-echo "  🧠  Claudiknows Installer"
-echo "  Sistema PARA + Claudiknows para Claude Code"
+echo "  OmniNox Installer"
+echo "  Sistema PARA + OmniNox para Claude Code"
 echo "  ──────────────────────────────────────────"
 echo ""
 
@@ -49,7 +49,7 @@ VAULT_PATH="$VAULT_PARENT/$VAULT_NAME"
 
 if [ -d "$VAULT_PATH" ]; then
   warn "Pasta '$VAULT_PATH' já existe."
-  read -r -p "  Continuar e instalar o Claudiknows dentro dela? [s/N] " CONFIRM
+  read -r -p "  Continuar e instalar o OmniNox dentro dela? [s/N] " CONFIRM
   if [[ ! "$CONFIRM" =~ ^[sS]$ ]]; then
     echo "Instalação cancelada."
     exit 0
@@ -83,7 +83,7 @@ read -r -p "  → " FIRST_WING
 echo ""
 echo "  ─── Resumo da instalação ──────────────────"
 echo "  Vault:     $VAULT_PATH"
-echo "  Claudiknows:$VAULT_PATH/Areas/claudiknows"
+echo "  OmniNox:   $VAULT_PATH/Areas/omninox"
 echo "  Hook:      $HOME/.claude/hooks/session-start.sh"
 echo "  Nome:      $USER_NAME"
 [ -n "$USER_LOCATION" ] && echo "  Local:     $USER_LOCATION"
@@ -109,11 +109,11 @@ mkdir -p "$VAULT_PATH/90 Templates"
 mkdir -p "$VAULT_PATH/00 Inbox"
 ok "Estrutura PARA criada"
 
-# ─── 5. copiar claudiknows ─────────────────────────────────────────────────────────
-CK_DEST="$VAULT_PATH/Areas/claudiknows"
-mkdir -p "$CK_DEST"
-cp -r "$TEMPLATE_DIR/claudiknows/." "$CK_DEST/"
-ok "Claudiknows instalado em $CK_DEST"
+# ─── 5. copiar omninox ───────────────────────────────────────────────────────
+ON_DEST="$VAULT_PATH/Areas/omninox"
+mkdir -p "$ON_DEST"
+cp -r "$TEMPLATE_DIR/omninox/." "$ON_DEST/"
+ok "OmniNox instalado em $ON_DEST"
 
 # ─── 6. copiar CLAUDE.md ──────────────────────────────────────────────────────
 CLAUDE_DEST="$VAULT_PATH/CLAUDE.md"
@@ -133,7 +133,7 @@ fi
 
 # ─── 7. preencher _identity.md ────────────────────────────────────────────────
 TODAY=$(date +%Y-%m-%d)
-IDENTITY_FILE="$CK_DEST/_identity.md"
+IDENTITY_FILE="$ON_DEST/_identity.md"
 
 sed -i '' \
   -e "s/__NOME__/$USER_NAME/g" \
@@ -144,7 +144,7 @@ sed -i '' \
 ok "_identity.md preenchido"
 
 # ─── 8. preencher _wake-up.md ─────────────────────────────────────────────────
-WAKE_FILE="$CK_DEST/_wake-up.md"
+WAKE_FILE="$ON_DEST/_wake-up.md"
 sed -i '' "s/__DATA__/$TODAY/g" "$WAKE_FILE"
 ok "_wake-up.md inicializado"
 
@@ -154,7 +154,7 @@ HOOK_DEST="$HOOK_DIR/session-start.sh"
 mkdir -p "$HOOK_DIR"
 
 # Substitui placeholder pelo path real
-sed "s|__CK_PATH__|$CK_DEST|g" \
+sed "s|__OMNINOX_PATH__|$ON_DEST|g" \
   "$TEMPLATE_DIR/hooks/session-start.sh" > "$HOOK_DEST"
 chmod +x "$HOOK_DEST"
 ok "Hook instalado em $HOOK_DEST"
@@ -197,29 +197,29 @@ PYEOF
   fi
 fi
 
-# ─── 11. tornar claudiknows.sh executável ──────────────────────────────────────────
-chmod +x "$CK_DEST/.scripts/claudiknows.sh"
-ok "claudiknows.sh marcado como executável"
+# ─── 11. tornar omninox.sh executável ─────────────────────────────────────────
+chmod +x "$ON_DEST/.scripts/omninox.sh"
+ok "omninox.sh marcado como executável"
 
 # ─── 12. wing inicial (opcional) ──────────────────────────────────────────────
 if [ -n "$FIRST_WING" ]; then
-  bash "$CK_DEST/.scripts/claudiknows.sh" new-wing "$FIRST_WING" "Wing inicial" 2>/dev/null \
+  bash "$ON_DEST/.scripts/omninox.sh" new-wing "$FIRST_WING" "Wing inicial" 2>/dev/null \
     && ok "Wing '$FIRST_WING' criada" \
-    || warn "Não foi possível criar wing '$FIRST_WING' — crie depois com claudiknows.sh"
+    || warn "Não foi possível criar wing '$FIRST_WING' — crie depois com omninox.sh"
 fi
 
 # ─── conclusão ────────────────────────────────────────────────────────────────
 echo ""
 echo "  ─── Instalação concluída! ──────────────────"
-ok "Claudiknows em:  $CK_DEST"
+ok "OmniNox em:  $ON_DEST"
 ok "Hook ativo: $HOOK_DEST"
 echo ""
 echo "  Próximos passos:"
 echo "  1. Abra o vault '$VAULT_NAME' no Obsidian"
 echo "  2. Inicie uma nova sessão do Claude Code dentro do vault:"
 echo "     cd \"$VAULT_PATH\" && claude"
-echo "  3. O Claudiknows já vai aparecer automaticamente no contexto."
+echo "  3. O OmniNox já vai aparecer automaticamente no contexto."
 echo ""
 echo "  Para criar wings depois:"
-echo "  bash Areas/claudiknows/.scripts/claudiknows.sh new-wing <nome> '<descrição>'"
+echo "  bash Areas/omninox/.scripts/omninox.sh new-wing <nome> '<descrição>'"
 echo ""
