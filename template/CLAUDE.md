@@ -16,6 +16,18 @@ Quando solicitado a ler conteúdo externo (Notion, wikis, docs, sites), **sempre
 
 Este projeto usa o sistema OmniNox. Wings são diretórios de arquivos Markdown no vault Obsidian. Ao criar uma nova wing, **sempre confirme com o usuário a descrição/propósito ANTES de gerar qualquer arquivo**.
 
+### OmniNox vs PARA
+
+O vault tem dois sistemas com propósitos distintos:
+
+- **OmniNox** (`Areas/omninox/`) = memória compartilhada. Stream de tudo que pensamos e falamos. Cronológico, acumulativo, narrativo.
+- **PARA** (`10 Projetos/`, `20 Áreas/`, `30 Recursos/`, `40 Arquivo/`) = sistema de trabalho. Onde artefatos consolidados vivem — MOCs, specs, docs, resources.
+
+**O OmniNox alimenta o PARA.** Pensamos no OmniNox; quando algo cristaliza, sobe pro PARA. Na hora de salvar, escolher o lugar certo:
+- Registro de sessão/pensamento → OmniNox (drawer + halls)
+- Artefato de trabalho consolidado → PARA (MOC, nota, recurso)
+- Quando vai nos dois: avaliar se o OmniNox precisa do conteúdo completo ou basta apontar pro PARA.
+
 ## Environment & Tooling
 
 Antes de rodar comandos dependentes de ambiente (brew, gh, npm, pip, etc.), verifique primeiro se a ferramenta está instalada e no PATH. Se não estiver, instale e verifique o PATH antes de prosseguir. **Nunca assuma que ferramentas CLI estão pré-instaladas.**
