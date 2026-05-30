@@ -3,6 +3,8 @@
 Sistema de memória em Markdown para uso com Claude Code + Obsidian.
 Injeta contexto automaticamente em toda sessão. Drawers auto-save, halls curados, busca full-text.
 
+Inclui também o **OmniNox Capture** — app menubar (macOS) para captura rápida no inbox do vault via `Cmd+Shift+N`.
+
 ## Instalação
 
 ```bash
@@ -16,6 +18,7 @@ O installer pergunta:
 - Nome do vault
 - Seu nome, localização e idioma
 - Se quer criar uma wing inicial
+- Se quer instalar o OmniNox Capture (opcional, requer Node.js)
 
 ## O que é instalado
 
@@ -46,7 +49,29 @@ O installer pergunta:
 
 ~/.claude/hooks/session-start.sh   ← hook global (injeta OmniNox em toda sessão)
 ~/.claude/settings.json            ← configura o hook no Claude Code
+/Applications/OmniNox Capture.app  ← opcional, se você optou por instalar o Capture
 ```
+
+## Instalar em outra máquina
+
+O OmniNox vive no vault. Pra migrar pra uma máquina nova:
+
+```bash
+# 1. clone o repo e rode o installer normalmente
+git clone https://github.com/jota-nox/omninox
+cd omninox
+bash install.sh
+# Aponte o vault pra uma pasta vazia OU mova o vault existente pra lá depois.
+
+# 2. (opcional) copie seu vault atual via iCloud / rsync / git
+rsync -a ~/Documents/<vault-antigo>/ /caminho/do/novo/<vault>/
+
+# 3. abra o Obsidian no novo vault, e o Claude Code também
+cd /caminho/do/novo/<vault>
+claude
+```
+
+O hook é instalado em `~/.claude/` (global por usuário), então qualquer sessão do Claude que rode dentro do vault já recebe o OmniNox no contexto.
 
 ## Como usar
 
@@ -111,9 +136,28 @@ O CLAUDE.md inclui regras de gestão de contexto para sessões longas:
 | DEGRADING | 50-70% | Avisa o usuário |
 | POOR | 70%+ | Salva e oferece sessão nova |
 
+## OmniNox Capture (macOS)
+
+Menubar app para capturar texto/imagens/arquivos direto no `00 Inbox/` do vault.
+
+- `Cmd+Shift+N` em qualquer lugar → abre a janela de captura
+- Drag-and-drop de arquivos no ícone da menubar
+- Cole imagem do clipboard → OCR automático (binário Swift nativo)
+- Configure o vault em "Mudar vault..." no menu da bandeja
+
+Build manual (caso não tenha instalado pelo installer):
+
+```bash
+cd capture
+npm install
+npm run build
+cp -R dist/mac-arm64/"OmniNox Capture.app" /Applications/
+```
+
 ## Requisitos
 
-- macOS ou Linux
+- macOS ou Linux (Capture: só macOS)
 - [Claude Code](https://claude.ai/code) instalado (`claude` no PATH)
 - [Obsidian](https://obsidian.md) (opcional, mas recomendado para navegar o vault)
 - Python 3 (pré-instalado no macOS)
+- Node.js + npm (opcional, só pra buildar o Capture)

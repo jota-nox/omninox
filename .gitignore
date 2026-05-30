@@ -1,1 +1,11 @@
+# macOS
 .DS_Store
+
+# Node / Electron (capture/)
+node_modules/
+capture/dist/
+capture/installer/.build/
+capture/installer/dist/
+
+# Logs
+*.log

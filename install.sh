@@ -79,6 +79,18 @@ ask "Criar uma wing inicial agora? (deixe em branco para pular)"
 echo "  Ex: trabalho, pessoal, projeto-x"
 read -r -p "  → " FIRST_WING
 
+# ─── 3b. capture (opcional) ───────────────────────────────────────────────────
+INSTALL_CAPTURE="n"
+if [ -d "$SCRIPT_DIR/capture" ]; then
+  echo ""
+  ask "Instalar OmniNox Capture também? (menubar app — Cmd+Shift+N para captura rápida)"
+  echo "  Requer Node.js + npm. Default: S"
+  read -r -p "  → [S/n] " CAP
+  if [[ ! "$CAP" =~ ^[nN]$ ]]; then
+    INSTALL_CAPTURE="y"
+  fi
+fi
+
 # ─── resumo ───────────────────────────────────────────────────────────────────
 echo ""
 echo "  ─── Resumo da instalação ──────────────────"
@@ -89,6 +101,7 @@ echo "  Nome:      $USER_NAME"
 [ -n "$USER_LOCATION" ] && echo "  Local:     $USER_LOCATION"
 echo "  Idioma:    $USER_LANG"
 [ -n "$FIRST_WING" ] && echo "  Wing:      $FIRST_WING"
+[ "$INSTALL_CAPTURE" = "y" ] && echo "  Capture:   sim (build + /Applications)"
 echo "  ────────────────────────────────────────────"
 echo ""
 read -r -p "  Confirmar instalação? [S/n] " GO
@@ -208,17 +221,43 @@ if [ -n "$FIRST_WING" ]; then
     || warn "Não foi possível criar wing '$FIRST_WING' — crie depois com omninox.sh"
 fi
 
+# ─── 13. capture (opcional) ───────────────────────────────────────────────────
+if [ "$INSTALL_CAPTURE" = "y" ]; then
+  CAPTURE_DIR="$SCRIPT_DIR/capture"
+  if ! command -v npm >/dev/null 2>&1; then
+    warn "npm não encontrado — pulando Capture. Instale Node.js e rode 'cd capture && npm install && npm run build' depois."
+  else
+    info "Buildando OmniNox Capture..."
+    (
+      cd "$CAPTURE_DIR" && \
+      npm install --silent && \
+      npm run build > /tmp/omninox-capture-build.log 2>&1
+    ) && {
+      APP_BUILT="$CAPTURE_DIR/dist/mac-arm64/OmniNox Capture.app"
+      if [ -d "$APP_BUILT" ]; then
+        rm -rf "/Applications/OmniNox Capture.app" 2>/dev/null || true
+        cp -R "$APP_BUILT" "/Applications/" && ok "Capture instalado em /Applications/OmniNox Capture.app"
+      else
+        warn "Build do Capture concluído mas .app não foi encontrado. Veja /tmp/omninox-capture-build.log"
+      fi
+    } || warn "Build do Capture falhou. Veja /tmp/omninox-capture-build.log"
+  fi
+fi
+
 # ─── conclusão ────────────────────────────────────────────────────────────────
 echo ""
 echo "  ─── Instalação concluída! ──────────────────"
 ok "OmniNox em:  $ON_DEST"
 ok "Hook ativo: $HOOK_DEST"
+[ "$INSTALL_CAPTURE" = "y" ] && [ -d "/Applications/OmniNox Capture.app" ] && ok "Capture:     /Applications/OmniNox Capture.app"
 echo ""
 echo "  Próximos passos:"
 echo "  1. Abra o vault '$VAULT_NAME' no Obsidian"
 echo "  2. Inicie uma nova sessão do Claude Code dentro do vault:"
 echo "     cd \"$VAULT_PATH\" && claude"
 echo "  3. O OmniNox já vai aparecer automaticamente no contexto."
+[ "$INSTALL_CAPTURE" = "y" ] && [ -d "/Applications/OmniNox Capture.app" ] && \
+  echo "  4. Abra o Capture (Cmd+Shift+N) e selecione o vault em 'Mudar vault...'"
 echo ""
 echo "  Para criar wings depois:"
 echo "  bash Areas/omninox/.scripts/omninox.sh new-wing <nome> '<descrição>'"
