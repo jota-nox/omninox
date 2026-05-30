@@ -13,12 +13,14 @@ usage() {
   echo "  new-wing <nome> <descricao>         Cria nova wing a partir do template"
   echo "  list-wings                           Lista wings ativas"
   echo "  read-wing <nome>                    Lê o contexto completo de uma wing"
+  echo "  list-drawers <wing> [N]             Lista drawers de uma wing (N mais recentes)"
   echo "  save-drawer <wing> <titulo>         Cria drawer (conteúdo via stdin)"
-  echo "  search <termo>                       Busca full-text em drawers e halls"
+  echo "  search <termo>                       Busca full-text, ordenado por frequência"
   echo "  update-wake-up                       Regenera _wake-up.md a partir do estado atual"
   echo ""
   echo "Exemplos:"
   echo "  bash omninox.sh new-wing projeto-x 'Redesign do dashboard principal'"
+  echo "  bash omninox.sh list-drawers jota 5"
   echo "  bash omninox.sh save-drawer jota 'pricing-v07' < conteudo.md"
   echo "  echo 'conteudo' | bash omninox.sh save-drawer jota 'pricing-v07'"
   echo "  bash omninox.sh search 'onboarding'"
@@ -120,6 +122,42 @@ cmd_read_wing() {
   fi
 }
 
+cmd_list_drawers() {
+  local wing="$1"
+  local recent="${2:-0}"
+
+  if [ -z "$wing" ]; then
+    echo "Erro: uso: omninox.sh list-drawers <wing> [N]"
+    exit 1
+  fi
+
+  local wing_dir="$WINGS_DIR/$wing"
+  if [ ! -d "$wing_dir" ]; then
+    echo "Erro: wing '$wing' não encontrada"
+    exit 1
+  fi
+
+  local drawers_dir="$wing_dir/drawers"
+  if [ ! -d "$drawers_dir" ] || [ -z "$(ls -A "$drawers_dir" 2>/dev/null)" ]; then
+    echo "Nenhum drawer em '$wing'."
+    exit 0
+  fi
+
+  local total=$(ls -1 "$drawers_dir"/*.md 2>/dev/null | wc -l | tr -d ' ')
+  echo "Drawers — $wing ($total total):"
+  echo ""
+
+  if [ "$recent" -gt 0 ]; then
+    ls -1t "$drawers_dir"/*.md 2>/dev/null | head -"$recent" | while read -r f; do
+      echo "  $(basename "$f")"
+    done
+  else
+    ls -1t "$drawers_dir"/*.md 2>/dev/null | while read -r f; do
+      echo "  $(basename "$f")"
+    done
+  fi
+}
+
 cmd_save_drawer() {
   local wing="$1"
   local titulo="$2"
@@ -154,7 +192,6 @@ cmd_save_drawer() {
   fi
 
   if [ -t 0 ]; then
-    # Sem stdin — cria drawer vazio com header
     cat > "$filepath" << EOF
 # Drawer: ${titulo}
 
@@ -167,10 +204,11 @@ EOF
     echo "Drawer criado (vazio): $filepath"
     echo "Edite o arquivo para adicionar conteúdo."
   else
-    # Com stdin — escreve conteúdo recebido
     cat > "$filepath"
     echo "Drawer salvo: $filepath"
   fi
+
+  cmd_update_wake_up > /dev/null 2>&1
 }
 
 cmd_search() {
@@ -181,69 +219,75 @@ cmd_search() {
     exit 1
   fi
 
-  local found=0
-
   echo "=== Buscando '$term' no OmniNox ==="
   echo ""
 
-  # Busca nos halls
+  local tmp_results
+  tmp_results=$(mktemp)
+
+  # Halls
   for wing_dir in "$WINGS_DIR"/*/; do
-    local wing_name=$(basename "$wing_dir")
+    local wing_name
+    wing_name=$(basename "$wing_dir")
     [ "$wing_name" = "_template" ] && continue
 
     for hall in decisoes problemas descobertas propostas; do
-      if [ -f "$wing_dir/$hall.md" ]; then
-        local results=$(grep -in "$term" "$wing_dir/$hall.md" 2>/dev/null)
-        if [ -n "$results" ]; then
-          echo "--- $wing_name/$hall.md ---"
-          echo "$results"
-          echo ""
-          found=1
-        fi
+      local hall_file="$wing_dir/$hall.md"
+      if [ -f "$hall_file" ]; then
+        local count
+        count=$(grep -ci "$term" "$hall_file" 2>/dev/null || echo 0)
+        [ "$count" -gt 0 ] && echo "${count}|$wing_name/$hall.md|$hall_file" >> "$tmp_results"
       fi
     done
   done
 
-  # Busca nos drawers
+  # Drawers
   for wing_dir in "$WINGS_DIR"/*/; do
-    local wing_name=$(basename "$wing_dir")
+    local wing_name
+    wing_name=$(basename "$wing_dir")
     [ "$wing_name" = "_template" ] && continue
 
     if [ -d "$wing_dir/drawers" ]; then
       for drawer in "$wing_dir/drawers"/*.md; do
         [ -f "$drawer" ] || continue
-        local results=$(grep -in "$term" "$drawer" 2>/dev/null)
-        if [ -n "$results" ]; then
-          local drawer_name=$(basename "$drawer")
-          echo "--- $wing_name/drawers/$drawer_name ---"
-          echo "$results" | head -5
-          local total=$(echo "$results" | wc -l | tr -d ' ')
-          if [ "$total" -gt 5 ]; then
-            echo "  ... (+$((total - 5)) linhas)"
-          fi
-          echo ""
-          found=1
+        local count
+        count=$(grep -ci "$term" "$drawer" 2>/dev/null || echo 0)
+        if [ "$count" -gt 0 ]; then
+          local drawer_name
+          drawer_name=$(basename "$drawer")
+          echo "${count}|$wing_name/drawers/$drawer_name|$drawer" >> "$tmp_results"
         fi
       done
     fi
   done
 
-  # Busca nos core files
+  # Core files
   for core in _wake-up.md _index.md tunnels.md; do
-    if [ -f "$OMNINOX_DIR/$core" ]; then
-      local results=$(grep -in "$term" "$OMNINOX_DIR/$core" 2>/dev/null)
-      if [ -n "$results" ]; then
-        echo "--- $core ---"
-        echo "$results"
-        echo ""
-        found=1
-      fi
+    local core_file="$OMNINOX_DIR/$core"
+    if [ -f "$core_file" ]; then
+      local count
+      count=$(grep -ci "$term" "$core_file" 2>/dev/null || echo 0)
+      [ "$count" -gt 0 ] && echo "${count}|$core|$core_file" >> "$tmp_results"
     fi
   done
 
-  if [ "$found" -eq 0 ]; then
+  if [ ! -s "$tmp_results" ]; then
     echo "Nenhum resultado para '$term'."
+    rm -f "$tmp_results"
+    return
   fi
+
+  # Ordenar por contagem decrescente e exibir
+  sort -t'|' -k1 -rn "$tmp_results" | while IFS='|' read -r count label filepath; do
+    echo "--- $label (${count}x) ---"
+    grep -in "$term" "$filepath" | head -5
+    if [ "$count" -gt 5 ]; then
+      echo "  ... (+$((count - 5)) linhas)"
+    fi
+    echo ""
+  done
+
+  rm -f "$tmp_results"
 }
 
 cmd_update_wake_up() {
@@ -328,6 +372,9 @@ case "$1" in
     ;;
   read-wing)
     cmd_read_wing "$2"
+    ;;
+  list-drawers)
+    cmd_list_drawers "$2" "$3"
     ;;
   save-drawer)
     cmd_save_drawer "$2" "$3"
