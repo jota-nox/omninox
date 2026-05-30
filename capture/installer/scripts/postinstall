@@ -1,0 +1,47 @@
+#!/bin/bash
+# OmniNox — postinstall
+
+log() { echo "[OmniNox] $*" | tee -a /tmp/omninox-install.log; }
+
+# Usuário real logado no console (não root)
+REAL_USER=$(stat -f "%Su" /dev/console 2>/dev/null)
+if [ -z "$REAL_USER" ] || [ "$REAL_USER" = "root" ]; then
+  REAL_USER=$(who | awk '/console/ {print $1}' | head -1)
+fi
+[ -z "$REAL_USER" ] && REAL_USER="$USER"
+
+log "Instalando para o usuário: $REAL_USER"
+
+# Localizar brew (Apple Silicon = /opt/homebrew, Intel = /usr/local)
+BREW_BIN=""
+for p in "/opt/homebrew/bin/brew" "/usr/local/bin/brew"; do
+  [ -x "$p" ] && BREW_BIN="$p" && break
+done
+
+if [ -z "$BREW_BIN" ]; then
+  log "Homebrew não encontrado — instalando..."
+  su - "$REAL_USER" -c 'NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"' 2>&1 | tee -a /tmp/omninox-install.log || true
+  # Re-checar após instalação
+  for p in "/opt/homebrew/bin/brew" "/usr/local/bin/brew"; do
+    [ -x "$p" ] && BREW_BIN="$p" && break
+  done
+fi
+
+if [ -n "$BREW_BIN" ]; then
+  log "Instalando dependências: ocrmypdf tesseract poppler img2pdf"
+  su - "$REAL_USER" -c "\"$BREW_BIN\" install ocrmypdf tesseract poppler img2pdf 2>&1" | tee -a /tmp/omninox-install.log || true
+  log "Dependências instaladas."
+else
+  log "AVISO: Homebrew não disponível. Instale manualmente: brew install ocrmypdf tesseract poppler img2pdf"
+fi
+
+# Habilitar login item
+log "Configurando OmniNox Capture para abrir no login..."
+su - "$REAL_USER" -c "osascript -e 'tell application \"System Events\" to make login item at end with properties {path:\"/Applications/OmniNox Capture.app\", hidden:false}' 2>/dev/null" || true
+
+# Abrir o app
+log "Abrindo OmniNox Capture..."
+su - "$REAL_USER" -c "open '/Applications/OmniNox Capture.app'" || true
+
+log "Instalação concluída. Log em /tmp/omninox-install.log"
+exit 0

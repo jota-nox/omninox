@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OmniNox Capture</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="app" class="window">
+    <div class="drag-region"></div>
+
+    <span class="brand">OmniNox</span>
+    <div class="content">
+      <textarea
+        id="input"
+        placeholder="T&#225; pensando em que xuxu?"
+        autofocus
+        spellcheck="false"
+      ></textarea>
+      <div id="slug-preview" class="slug-preview"></div>
+
+      <div id="attachments" class="attachments" style="display: none;">
+        <!-- attachment items injected here -->
+      </div>
+
+      <div class="footer">
+        <button id="btn-attach" class="btn-attach" title="Anexar arquivo">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+          </svg>
+        </button>
+        <div class="hints">
+          <span class="hint"><kbd>&#8984;Enter</kbd> salvar</span>
+          <span class="hint"><kbd>Esc</kbd> fechar</span>
+        </div>
+      </div>
+    </div>
+
+    <div id="feedback" class="feedback" style="display: none;">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="20 6 9 17 4 12"/>
+      </svg>
+    </div>
+  </div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>
