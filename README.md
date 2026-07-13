@@ -1,163 +1,68 @@
-# OmniNox — Sistema de Memória Persistente para Claude Code
+# OmniNox v2
 
-Sistema de memória em Markdown para uso com Claude Code + Obsidian.
-Injeta contexto automaticamente em toda sessão. Drawers auto-save, halls curados, busca full-text.
+Memória persistente pro Claude Code: um vault Obsidian onde toda sessão de
+trabalho é capturada automaticamente, destilada em conhecimento curado e
+(se você quiser) sincronizada entre máquinas por um repositório privado.
 
-Inclui também o **OmniNox Capture** — app menubar (macOS) para captura rápida no inbox do vault via `Cmd+Shift+N`.
+## Instalar
 
-## Instalação
-
-```bash
-git clone https://github.com/jota-nox/omninox
-cd omninox
-bash install.sh
-```
-
-O installer pergunta:
-- Onde criar o vault (pasta pai)
-- Nome do vault
-- Seu nome, localização e idioma
-- Se quer criar uma wing inicial
-- Se quer instalar o OmniNox Capture (opcional, requer Node.js)
-
-## O que é instalado
+Cole uma linha no Terminal e siga o assistente (em português):
 
 ```
-<vault>/
-├── 10 Projetos/
-├── 20 Áreas/
-├── 30 Recursos/
-├── 40 Arquivo/
-├── 90 Templates/
-├── 00 Inbox/
-├── Areas/omninox/              ← o OmniNox
-│   ├── _identity.md            ← quem você é
-│   ├── _wake-up.md             ← contexto da sessão (injetado automaticamente)
-│   ├── _index.md               ← mapa do OmniNox
-│   ├── tunnels.md              ← referências cruzadas entre wings
-│   ├── .scripts/omninox.sh     ← CLI helper
-│   └── wings/                  ← um diretório por projeto/pessoa
-│       └── _template/          ← template para novas wings
-│           ├── _wing.md
-│           ├── _continue.md    ← checkpoint de sessão
-│           ├── decisoes.md
-│           ├── problemas.md
-│           ├── descobertas.md
-│           ├── propostas.md
-│           └── drawers/
-└── CLAUDE.md                   ← protocolo de comportamento do Claude
-
-~/.claude/hooks/session-start.sh   ← hook global (injeta OmniNox em toda sessão)
-~/.claude/settings.json            ← configura o hook no Claude Code
-/Applications/OmniNox Capture.app  ← opcional, se você optou por instalar o Capture
+curl -fsSL https://raw.githubusercontent.com/jota-nox/omninox/main/install.sh | bash
 ```
 
-## Instalar em outra máquina
+O assistente cuida de tudo: ferramentas da Apple, Claude Code, Obsidian,
+o app OmniNox Capture, a estrutura do vault, os hooks de captura e as
+permissões. Três caminhos possíveis:
 
-O OmniNox vive no vault. Pra migrar pra uma máquina nova:
+1. **Novo** (vault em branco pra começar do zero)
+2. **Restaurar** (máquina nova ou formatada: clona seu backup e tudo volta,
+   inclusive a memória do Claude)
+3. **Atualizar** (detecta uma instalação existente e só atualiza scripts e apps)
 
-```bash
-# 1. clone o repo e rode o installer normalmente
-git clone https://github.com/jota-nox/omninox
-cd omninox
-bash install.sh
-# Aponte o vault pra uma pasta vazia OU mova o vault existente pra lá depois.
+### Backup e multi-máquina
 
-# 2. (opcional) copie seu vault atual via iCloud / rsync / git
-rsync -a ~/Documents/<vault-antigo>/ /caminho/do/novo/<vault>/
+Durante a instalação você escolhe se quer backup num repositório **privado**
+do GitHub. Com backup ativo, cada máquina onde você instalar o OmniNox vira
+uma estação de trabalho do mesmo cérebro: o vault sincroniza sozinho (pull no
+início de sessão, push no fim), e appends paralelos em máquinas diferentes se
+fundem sem conflito. Sem backup, tudo funciona igual, só que existe apenas na
+sua máquina (você pode ativar depois rodando o instalador de novo).
 
-# 3. abra o Obsidian no novo vault, e o Claude Code também
-cd /caminho/do/novo/<vault>
-claude
+## Como funciona
+
+```
+TRANSCRIPT (Claude Code)      tudo que você conversa, 100% automático
+   └─> raw/                   verbatim minerado por hooks (imutável)
+         └─> drawers          resumo curado por sessão
+               └─> halls      decisões, descobertas, propostas por projeto
+                     └─> wiki padrões compilados da sua forma de pensar
+                           └─> PARA  artefatos de trabalho (10/20/30/40)
 ```
 
-O hook é instalado em `~/.claude/` (global por usuário), então qualquer sessão do Claude que rode dentro do vault já recebe o OmniNox no contexto.
+- **Captura é automática.** Hooks do Claude Code mineram o transcript de cada
+  sessão pro vault. Você nunca precisa pedir "salva isso".
+- **Síntese é assíncrona.** De tempos em tempos, rode `/omni-compile` numa
+  sessão do Claude: os verbatims viram drawers curados, halls e wiki.
+- **Capture rápido.** `⌘⇧N` de qualquer lugar abre o OmniNox Capture
+  (app nativo de 532 KB): texto, imagens com OCR automático, arquivos.
+  Tudo cai no `00 Inbox` do vault, já com git.
 
-## Como usar
+## O que tem neste repositório
 
-### Iniciar uma sessão
-```bash
-cd <vault>
-claude
-```
-O OmniNox é injetado automaticamente no contexto.
+| Pasta | O quê |
+|---|---|
+| `install.sh` | O instalador/assistente |
+| `template/vault/` | O vault em branco (estrutura PARA + OmniNox) |
+| `capture/` | Código do OmniNox Capture (Swift/AppKit, arquivo único) |
+| `claude-config/` | Hooks e skill `/omni-compile` pro Claude Code |
 
-### Criar uma nova wing
-```bash
-bash Areas/omninox/.scripts/omninox.sh new-wing projeto-x "Descrição curta"
-```
-
-### Salvar um drawer
-```bash
-echo "conteúdo" | bash Areas/omninox/.scripts/omninox.sh save-drawer projeto-x "titulo-sessao"
-```
-
-### Buscar no OmniNox
-```bash
-bash Areas/omninox/.scripts/omninox.sh search "termo"
-```
-
-### Listar wings
-```bash
-bash Areas/omninox/.scripts/omninox.sh list-wings
-```
-
-### Atualizar wake-up
-```bash
-bash Areas/omninox/.scripts/omninox.sh update-wake-up
-```
-
-## Conceitos
-
-- **Wing** = uma ala do OmniNox para cada projeto ou pessoa
-- **Halls** = corredores temáticos dentro de cada wing (decisões, problemas, descobertas, propostas)
-- **Drawers** = logs verbatim das conversas — nunca resumidos
-- **Tunnels** = referências cruzadas entre wings
-- **Wake-up** = contexto mínimo (~200 tokens) injetado em toda sessão
-- **Continue** = checkpoint da última sessão por wing (injetado automaticamente)
-
-## Protocolo de save
-
-O OmniNox usa duas camadas de save:
-
-| Camada | Permissão | O que salva |
-|--------|-----------|-------------|
-| **Drawers** | Auto-save | Log verbatim da sessão. Sem pedir permissão. |
-| **Halls** | Curado | Decisões, problemas, descobertas, propostas. Claude pede permissão. |
-
-## Context Budget
-
-O CLAUDE.md inclui regras de gestão de contexto para sessões longas:
-
-| Tier | Uso | Comportamento |
-|------|-----|---------------|
-| PEAK | 0-30% | Operação normal |
-| GOOD | 30-50% | Leituras seletivas |
-| DEGRADING | 50-70% | Avisa o usuário |
-| POOR | 70%+ | Salva e oferece sessão nova |
-
-## OmniNox Capture (macOS)
-
-Menubar app para capturar texto/imagens/arquivos direto no `00 Inbox/` do vault.
-
-- `Cmd+Shift+N` em qualquer lugar → abre a janela de captura
-- Drag-and-drop de arquivos no ícone da menubar
-- Cole imagem do clipboard → OCR automático (binário Swift nativo)
-- Configure o vault em "Mudar vault..." no menu da bandeja
-
-Build manual (caso não tenha instalado pelo installer):
-
-```bash
-cd capture
-npm install
-npm run build
-cp -R dist/mac-arm64/"OmniNox Capture.app" /Applications/
-```
+O binário do Capture vem pré-compilado nos
+[releases](https://github.com/jota-nox/omninox/releases) (o instalador baixa
+sozinho; ninguém precisa de Xcode).
 
 ## Requisitos
 
-- macOS ou Linux (Capture: só macOS)
-- [Claude Code](https://claude.ai/code) instalado (`claude` no PATH)
-- [Obsidian](https://obsidian.md) (opcional, mas recomendado para navegar o vault)
-- Python 3 (pré-instalado no macOS)
-- Node.js + npm (opcional, só pra buildar o Capture)
+macOS Apple Silicon. Conta no Claude (o Claude Code é instalado pelo
+assistente se faltar). Conta no GitHub apenas se quiser backup.

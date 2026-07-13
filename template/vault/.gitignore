@@ -1,0 +1,11 @@
+# Obsidian — estado volátil de UI (não é conteúdo)
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+.obsidian/cache/
+.trash/
+
+# macOS
+.DS_Store
+
+# Credenciais nunca vão pro git/remoto
+30 Recursos/credenciais/

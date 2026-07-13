@@ -1,0 +1,9 @@
+# Sync multi-máquina: arquivos append-only fazem merge automático (union) —
+# dois appends paralelos em máquinas diferentes se fundem sem conflito.
+# Arquivos derivados/regenerados (wake-up, _continue) ficam FORA de propósito:
+# conflito neles deve abortar e alertar, nunca fundir em silêncio.
+Areas/omninox/raw/ledger.tsv merge=union
+Areas/omninox/wings/**/decisoes.md merge=union
+Areas/omninox/wings/**/descobertas.md merge=union
+Areas/omninox/wings/**/problemas.md merge=union
+Areas/omninox/wings/**/propostas.md merge=union

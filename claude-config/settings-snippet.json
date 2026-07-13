@@ -1,13 +1,47 @@
 {
+  "_comment": "Snippet de hooks do OmniNox v2. O install.sh troca __VAULT__ pelo caminho real do vault e faz merge com o ~/.claude/settings.json existente (sem sobrescrever outras chaves).",
+  "cleanupPeriodDays": 3650,
   "hooks": {
     "SessionStart": [
       {
-        "matcher": "startup|resume|clear|compact",
         "hooks": [
           {
             "type": "command",
-            "command": "$HOME/.claude/hooks/session-start.sh",
-            "statusMessage": "Carregando OmniNox..."
+            "command": "__VAULT__/Areas/omninox/.scripts/session-start-global.sh",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "__VAULT__/Areas/omninox/.scripts/omni-capture.py",
+            "timeout": 60
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "__VAULT__/Areas/omninox/.scripts/omni-capture.py",
+            "timeout": 60
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "__VAULT__/Areas/omninox/.scripts/omni-capture.py",
+            "timeout": 120
           }
         ]
       }
