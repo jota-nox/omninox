@@ -39,6 +39,29 @@ ask() { # ask "pergunta" "default" -> $REPLY_ANS
 
 json_get() { python3 -c "import json,sys;print(json.load(open('$1')).get('$2',''))" 2>/dev/null; }
 
+# garante GitHub CLI (binário direto, sem Homebrew) + login com browser
+ensure_gh() {
+  if ! command -v gh >/dev/null 2>&1; then
+    warn "instalando GitHub CLI..."
+    GH_URL=$(curl -fsSL "https://api.github.com/repos/cli/cli/releases/latest" \
+      | python3 -c "import json,sys;a=json.load(sys.stdin)['assets'];print(next(x['browser_download_url'] for x in a if 'macOS_arm64' in x['name'] and x['name'].endswith('.zip')))" 2>/dev/null)
+    if [ -n "$GH_URL" ] && curl -fsSL "$GH_URL" -o "$TMP/gh.zip"; then
+      ditto -x -k "$TMP/gh.zip" "$TMP/gh"
+      mkdir -p "$HOME/.local/bin"
+      cp "$TMP"/gh/gh_*/bin/gh "$HOME/.local/bin/gh" && chmod +x "$HOME/.local/bin/gh"
+      export PATH="$HOME/.local/bin:$PATH"
+    fi
+  fi
+  command -v gh >/dev/null 2>&1 || return 1
+  if ! gh auth status >/dev/null 2>&1; then
+    say "      Vou abrir o login do GitHub no navegador — siga os passos lá."
+    gh auth login --web --git-protocol https < /dev/tty || return 1
+  fi
+  # git puro (hooks/scripts) precisa das credenciais do gh
+  gh auth setup-git >/dev/null 2>&1 || true
+  return 0
+}
+
 # ---------------------------------------------------------------- boas-vindas
 say ""
 say "  ${Y}◆ OmniNox v2${N} — memória persistente pro Claude Code"
@@ -190,11 +213,16 @@ case "$MODE" in
       ok "vault já existe em $VAULT — pulando clone"
     else
       [ -e "$VAULT" ] && die "$VAULT já existe e não é um vault OmniNox — escolha outro caminho"
-      # repo privado: tenta gh primeiro (auth), cai pro git puro
+      # 1º tenta gh já autenticado; 2º git puro (repo público); 3º instala gh + login e tenta de novo
       if command -v gh >/dev/null 2>&1 && gh auth status >/dev/null 2>&1; then
+        gh auth setup-git >/dev/null 2>&1 || true
         gh repo clone "$REPO_URL" "$VAULT" -- -q || die "clone falhou"
+      elif GIT_TERMINAL_PROMPT=0 git clone -q "$REPO_URL" "$VAULT" 2>/dev/null; then
+        :
       else
-        git clone -q "$REPO_URL" "$VAULT" || die "clone falhou (repo privado? rode: gh auth login)"
+        warn "repositório privado — precisa de login no GitHub"
+        ensure_gh || die "não consegui instalar/logar o GitHub CLI — tente de novo com internet estável"
+        gh repo clone "$REPO_URL" "$VAULT" -- -q || die "clone falhou (confere a URL e se sua conta tem acesso ao repo)"
       fi
       ok "vault restaurado de $REPO_URL"
     fi
@@ -233,23 +261,8 @@ else
     BK="$REPLY_ANS"
   fi
   if [ "$BK" = "s" ]; then
-    # garante gh
-    if ! command -v gh >/dev/null 2>&1; then
-      warn "instalando GitHub CLI..."
-      GH_URL=$(curl -fsSL "https://api.github.com/repos/cli/cli/releases/latest" \
-        | python3 -c "import json,sys;a=json.load(sys.stdin)['assets'];print(next(x['browser_download_url'] for x in a if 'macOS_arm64' in x['name'] and x['name'].endswith('.zip')))" 2>/dev/null)
-      if [ -n "$GH_URL" ] && curl -fsSL "$GH_URL" -o "$TMP/gh.zip"; then
-        ditto -x -k "$TMP/gh.zip" "$TMP/gh"
-        mkdir -p "$HOME/.local/bin"
-        cp "$TMP"/gh/gh_*/bin/gh "$HOME/.local/bin/gh" && chmod +x "$HOME/.local/bin/gh"
-        export PATH="$HOME/.local/bin:$PATH"
-      fi
-    fi
+    ensure_gh || warn "GitHub CLI/login indisponível"
     if command -v gh >/dev/null 2>&1; then
-      if ! gh auth status >/dev/null 2>&1; then
-        say "      Vou abrir o login do GitHub no navegador — siga os passos lá."
-        gh auth login --web --git-protocol https < /dev/tty || warn "login não concluído"
-      fi
       if gh auth status >/dev/null 2>&1; then
         RNAME="omninox-vault"
         ask "Nome do repositório privado [enter = $RNAME]:" "$RNAME"
